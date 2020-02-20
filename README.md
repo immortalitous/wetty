@@ -1,94 +1,173 @@
-# WeTTY = Web + TTY.
-
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-![All Contributors](https://img.shields.io/badge/all_contributors-33-orange.svg?style=flat-square)
-
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-
-![Version](https://img.shields.io/badge/version-1.1.7-blue.svg?cacheSeconds=2592000)
-![Node Version](https://img.shields.io/badge/node-%3E%3D6.9-blue.svg)
-[![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://github.com/butlerx/wetty/tree/master/docs)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/butlerx/wetty/blob/master/LICENSE)
-[![Twitter: cianbutlerx](https://img.shields.io/twitter/follow/cianbutlerx.svg?style=social)](https://twitter.com/cianbutlerx)
-
+# WeTTY = Web + TTY
 > Terminal access in browser over http/https
 
-Terminal over HTTP and https. WeTTy is an alternative to ajaxterm and anyterm
-but much better than them because WeTTy uses xterm.js which is a full fledged
-implementation of terminal emulation written entirely in JavaScript. WeTTy uses
-websockets rather then Ajax and hence better response time.
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![All Contributors](https://img.shields.io/badge/all_contributors-33-orange.svg?style=flat-square)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/butlerx/wetty/blob/master/LICENSE)
+
+Terminal over HTTP and HTTPS. WeTTy is an alternative to ajaxterm and anyterm but much better than them, because WeTTy uses xterm.js which is a full fledged implementation of terminal emulation written entirely in JavaScript. WeTTy uses websockets rather then Ajax and hence better response time.
+
+## Table of Contents
+1. [Prerequisites](#prerequisites)
+2. [Installation](#installation)
+3. [Usage](#usage)
+4. [Apache Configuration](#apache_configuration)
+5. [HTTPS with SSL-certificate](#https_with_ssl-certificate)
+6. [Autostart with systemd-file](#autostart_with_systemd-file)
+7. [Flags](#flags)
+    1. [Server Port](#server_port)
+    2. [SSH Host](#ssh_host)
+    3. [Default User](#default_user)
+    4. [SSH Port](#ssh_port)
+    5. [WeTTy URL](#wetty_url)
+8. [File Downloading](#file_downloading)
+9. [FAQ](#faq)
+10. [Author](#author)
+11. [Contributors](#contributors)
+12. [License](#license)
+
+<a name="prerequisites"/></a>
 ## Prerequisites
-
-- node >=6.9
-- make
 - python
-- build-essential
+- node >=6.9
+- yarn
 
-## Install
-
-```sh
-yarn global add wetty
+<a name="installation"/></a>
+## Installation
+```bash
+$ git clone https://github.com/immortalitous/wetty.git
+$ cd wetty
+$ yarn
+$ yarn build
 ```
 
+<a name="usage"/></a>
 ## Usage
-
 ```sh
 wetty [-h] [--port PORT] [--base BASE] [--sshhost SSH_HOST] [--sshport SSH_PORT] [--sshuser SSH_USER] [--host HOST] [--command COMMAND] [--forcessh] [--bypasshelmet] [--title TITLE] [--sslkey SSL_KEY_PATH] [--sslcert SSL_CERT_PATH]
 ```
 
-Open your browser on `http://yourserver:3000/wetty` and you will prompted to
-login. Or go to `http://yourserver:3000/wetty/ssh/<username>` to specify the
-user before hand.
+Open your browser on `http://yourserver:3000/wetty` and you will prompted to login. Or go to `http://yourserver:3000/wetty/ssh/<username>` to specify the user before hand.
 
-If you run it as root it will launch `/bin/login` (where you can specify the
-user name), else it will launch `ssh` and connect by default to `localhost`. The
-SSH connection can be forced using the `--forcessh` option.
+If you run it as root it will launch `/bin/login` (where you can specify the user name), else it will launch `ssh` and connect by default to `localhost`. The SSH connection can be forced using the `--forcessh` option.
 
-If instead you wish to connect to a remote host you can specify the `--sshhost`
-option, the SSH port using the `--sshport` option and the SSH user using the
-`--sshuser` option.
+If instead you wish to connect to a remote host you can specify the `--sshhost` option, the SSH port using the `--sshport` option and the SSH user using the `--sshuser` option.
 
-Check out the
-[Flags docs](https://github.com/butlerx/wetty/blob/master/docs/flags.md) for a
-full list of flags
+Check out the [Flags docs](https://github.com/butlerx/wetty/blob/master/docs/flags.md) for a full list of flags.
 
+<a name="apache_configuration"/></a>
+## Apache Configuration
+Create a new VirtualHost in your configuration with your favorite text editor:
+```bash
+$ nano /etc/apache2/sites-available/subdomain.domain.tld
+```
+And enter the following:
+```sh
+<VirtualHost *:80>
+    ServerName subdomain.domain.tld
+    ProxyPassMatch / http://127.0.0.1:PORT
+</VirtualHost>
+```
+
+<a name="https_with_ssl-certificate"/></a>
+## HTTPS with SSL-certificate
+Modify the Apache configuration by adding a VirtualHost which handles the port `443`:
+```sh
+<VirtualHost *:80>
+    ServerName subdomain.domain.tld
+    Redirect / https://subdomain.domain.tld
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName subdomain.domain.tld
+    ProxyPassMatch / http://127.0.0.1:PORT
+    Include /path/to/config-file.conf
+    SSLCertificateFile /path/to/fullchain.pem
+    SSLCertificateKeyFile /path/to/privkey.pem
+</VirtualHost>
+```
+
+<a name="autostart_with_systemd-file"/></a>
+## Autostart with systemd-file
+Copy the `wetty.service` located in [./bin](https://github.com/immortalitous/wetty/tree/master/bin) to the systemd folder:
+```bash
+$ cp /path/to/wetty/bin/wetty.service /etc/systemd/system/wetty.service
+```
+
+Standard configuration: `wetty -p 3000 --host 127.0.0.1 -b "" --forcessh --title ""`
+
+<a name="flags"/></a>
+## Flags
+WeTTy can be run with the `--help` flag to get a full list of flags.
+
+<a name="server_port"/></a>
+### Server Port
+WeTTy runs on port `3000` by default. You can change the default port by starting with the `--port` or `-p` flag.
+
+<a name="ssh_host"/></a>
+### SSH Host
+If WeTTy is run as root while the host is set as the local machine it will use the `login` binary rather than SSH. If no host is specified it will use
+`localhost` as the SSH host.
+
+If instead you wish to connect to a remote host you can specify the host with the `--sshhost` flag and pass the IP or DNS address of the host you
+want to connect to.
+
+<a name="default_user"/></a>
+### Default User
+You can specify the default user used to SSH to a host using the `--sshuser`. This user can overwritten by going to
+`http://yourserver:3000/wetty/ssh/<username>`. If this is left blank a user will be prompted to enter their username when they connect.
+
+<a name="ssh_port"/></a>
+### SSH Port
+By default WeTTy will try to SSH to port `22`, if your host uses an alternative SSH port this can be specified with the flag `--sshport`.
+
+<a name="wetty_url"/></a>
+### WeTTy URL
+If you'd prefer an HTTP base prefix other than `/wetty`, you can specify that with `-b` or `--base`.
+
+**Do not set this to `/ssh/${something}`, as this will break username matching code.**
+
+<a name="file_downloading"/></a>
+## File Downloading
+WeTTy supports file downloads by printing terminal escape sequences between a Base64 encoded file.
+
+The terminal escape sequences used are `^[[5i` and `^[[4i` (VT100 for "enter auto print" and "exit auto print" respectively -
+https://vt100.net/docs/tp83/appendixc.html).
+
+An example of a helper script that prints the terminal escape characters and Base64's stdin:
+
+```bash
+$ cat wetty-download.sh
+#!/bin/sh
+echo '^[[5i'$(cat /dev/stdin | base64)'^[[4i'
+```
+
+You are then able to download files via WeTTy!
+
+```bash
+$ cat my-pdf-file.pdf | ./wetty-download.sh
+```
+
+WeTTy will then issue a popup like the following that links to a local file blob:<br />
+`Download ready: file-20191015233654.pdf`
+
+<a name="faq"/></a>
 ## FAQ
-
-Check out the [docs](https://github.com/butlerx/wetty/tree/master/docs)
-
-- [Running as daemon](https://github.com/butlerx/wetty/blob/master/docs/service.md)
-- [SSL Support](https://github.com/butlerx/wetty/blob/master/docs/ssl.md)
-  - [Using NGINX](https://github.com/butlerx/wetty/blob/master/docs/nginx.md)
-  - [Using Apache](https://github.com/butlerx/wetty/blob/master/docs/apache.md)
-- [Automatic Login](https://github.com/butlerx/wetty/blob/master/docs/auto-login.md)
-- [Downloading Files](https://github.com/butlerx/wetty/blob/master/docs/downloading-files.md)
-
+<a name="what_browser_are_supported?"/></a>
 ### What browsers are supported?
-
 WeTTy supports all browsers that
 [xterm.js supports](https://github.com/xtermjs/xterm.js#browser-support).
 
+<a name="author"/></a>
 ## Author
-
-👤 **Cian Butler <butlerx@notthe.cloud>**
-
-- Twitter: [@cianbutlerx](https://twitter.com/cianbutlerx)
+**Cian Butler <butlerx@notthe.cloud>**
 - Github: [@butlerx](https://github.com/butlerx)
+- Twitter: [@cianbutlerx](https://twitter.com/cianbutlerx)
 
-## Contributing ✨
-
-Contributions, issues and feature requests are welcome!<br />Feel free to check
-[issues page](https://github.com/butlerx/wetty/issues).
-
-Please read the
-[development docs](https://github.com/butlerx/wetty/blob/master/docs/development.md)
-for installing from source and running is dev node
-
-Thanks goes to these wonderful people
-([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
+<a name="contributors"/></a>
+## Contributors
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
@@ -137,24 +216,15 @@ Thanks goes to these wonderful people
     <td align="center"><a href="https://www.kartar.net/"><img src="https://avatars3.githubusercontent.com/u/4365?v=4" width="100px;" alt="James Turnbull"/><br /><sub><b>James Turnbull</b></sub></a><br /><a href="https://github.com/butlerx/WeTTy/commits?author=jamtur01" title="Code">💻</a></td>
   </tr>
 </table>
-
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
-
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the
-[all-contributors](https://github.com/all-contributors/all-contributors)
-specification. Contributions of any kind welcome!
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification.
 
-## Show your support
-
-Give a ⭐️ if this project helped you!
-
-## 📝 License
-
-Copyright © 2019
-[Cian Butler <butlerx@notthe.cloud>](https://github.com/butlerx).<br /> This
-project is [MIT](https://github.com/butlerx/wetty/blob/master/LICENSE) licensed.
+<a name="license"/></a>
+## License
+Copyright © 2019 [Cian Butler <butlerx@notthe.cloud>](https://github.com/butlerx).<br />
+This project is [MIT](https://github.com/immortalitous/wetty/blob/master/LICENSE) licensed.
 
 ---
