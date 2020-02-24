@@ -1,5 +1,5 @@
 # WeTTY = Web + TTY
-> Terminal access in browser over http/https
+> Terminal access in browser over HTTP/HTTPS
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 ![All Contributors](https://img.shields.io/badge/all_contributors-33-orange.svg?style=flat-square)
@@ -7,7 +7,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/butlerx/wetty/blob/master/LICENSE)
 
-Terminal over HTTP and HTTPS. WeTTy is an alternative to ajaxterm and anyterm but much better than them, because WeTTy uses xterm.js which is a full fledged implementation of terminal emulation written entirely in JavaScript. WeTTy uses websockets rather then Ajax and hence better response time.
+Terminal over HTTP and HTTPS. WeTTy is an alternative to ajaxterm and anyterm (but much better than them), because WeTTy uses xterm.js which is a full fledged implementation of terminal emulation written entirely in JavaScript. WeTTy uses websockets rather then Ajax and hence better response time.
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
@@ -58,8 +58,6 @@ If you run it as root it will launch `/bin/login` (where you can specify the use
 
 If instead you wish to connect to a remote host you can specify the `--sshhost` option, the SSH port using the `--sshport` option and the SSH user using the `--sshuser` option.
 
-Check out the [Flags docs](https://github.com/butlerx/wetty/blob/master/docs/flags.md) for a full list of flags.
-
 <a name="apache_configuration"/></a>
 ## Apache Configuration
 Create a new VirtualHost in your configuration with your favorite text editor:
@@ -94,7 +92,7 @@ Modify the Apache configuration by adding a VirtualHost which handles the port `
 
 <a name="autostart_with_systemd-file"/></a>
 ## Autostart with systemd-file
-Copy the `wetty.service` located in [./bin](https://github.com/immortalitous/wetty/tree/master/bin) to the systemd folder:
+Copy the `wetty.service` file located in [./bin/](https://github.com/immortalitous/wetty/tree/master/bin) to the systemd folder:
 ```bash
 $ cp /path/to/wetty/bin/wetty.service /etc/systemd/system/wetty.service
 ```
@@ -113,7 +111,11 @@ $ cp /path/to/custom_favicon.ico /path/to/wetty/src/client/favicon.ico
 
 <a name="setup_a_custom_theme"/></a>
 ### Setup a custom theme
-Go into `/path/to/wetty/src/client/` end edit the `options.ts` file with your preferred text editor:
+Go into [./src/client/](https://github.com/immortalitous/wetty/tree/master/src/client):
+```bash
+$ cd /path/to/wetty/src/client/
+```
+And edit the `options.ts` file with your preferred text editor:
 ```bash
 $ nano ./options.ts
 ```
