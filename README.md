@@ -16,17 +16,20 @@ Terminal over HTTP and HTTPS. WeTTy is an alternative to ajaxterm and anyterm bu
 4. [Apache Configuration](#apache_configuration)
 5. [HTTPS with SSL-certificate](#https_with_ssl-certificate)
 6. [Autostart with systemd-file](#autostart_with_systemd-file)
-7. [Flags](#flags)
+7. [Customization](#customization)
+    1. [Setup a custom favicon](#setup_a_custom_favicon)
+    2. [Setup a custom theme](#setup_a_custom_theme)
+8. [Flags](#flags)
     1. [Server Port](#server_port)
     2. [SSH Host](#ssh_host)
     3. [Default User](#default_user)
     4. [SSH Port](#ssh_port)
     5. [WeTTy URL](#wetty_url)
-8. [File Downloading](#file_downloading)
-9. [FAQ](#faq)
-10. [Author](#author)
-11. [Contributors](#contributors)
-12. [License](#license)
+9. [File Downloading](#file_downloading)
+10. [FAQ](#faq)
+11. [Author](#author)
+12. [Contributors](#contributors)
+13. [License](#license)
 
 <a name="prerequisites"/></a>
 ## Prerequisites
@@ -97,6 +100,38 @@ $ cp /path/to/wetty/bin/wetty.service /etc/systemd/system/wetty.service
 ```
 
 Standard configuration: `wetty -p 3000 --host 127.0.0.1 -b "" --forcessh --title ""`
+
+<a name="customization"/></a>
+## Customization
+
+<a name="setup_a_custom_favicon"/></a>
+### Setup a custom favicon
+Copy your preferred `favicon.ico` with the following command:
+```bash
+$ cp /path/to/custom_favicon.ico /path/to/wetty/src/client/favicon.ico
+```
+
+<a name="setup_a_custom_theme"/></a>
+### Setup a custom theme
+Go into `/path/to/wetty/src/client/` end edit the `options.ts` file with your preferred text editor:
+```bash
+$ nano ./options.ts
+```
+Replace `FG_COLOR` and `BG_COLOR` with your custom colors:
+```typescript
+import { isUndefined } from 'lodash';
+
+export default function loadOptions(): object {
+  const defaultOptions = { fontSize: 14 , theme: { foreground: "FG_COLOR", background: "BG_COLOR" }};
+  try {
+    return isUndefined(localStorage.options)
+      ? defaultOptions
+      : JSON.parse(localStorage.options);
+  } catch {
+    return defaultOptions;
+  }
+}
+```
 
 <a name="flags"/></a>
 ## Flags
